@@ -136,6 +136,9 @@ Param (
     [Switch]$Show
 )
     Ensure-Fiddler -Show:$Show
+
+    Write-Verbose "Saving fiddler capture for ProcessID: $($ProcessID) to FileName: $($fileName)"
+
     if ($Show) { 
         &"$(Get-FiddlerBinary -Name 'ExecAction')" Show
     } else {
@@ -144,19 +147,19 @@ Param (
     &"$(Get-FiddlerBinary -Name 'ExecAction')" stop
     #Select Only the sessions sent by this PowerShell process 
     &"$(Get-FiddlerBinary -Name 'ExecAction')" "select @col.Process :$ProcessID"
-    &"$(Get-FiddlerBinary -Name 'ExecAction')" "DumpJson $FileName"
+    &"$(Get-FiddlerBinary -Name 'ExecAction')" "DumpJson $fileName"
 
     #Wait for File  For up to 10 secs 
     $timeout = new-timespan -Seconds 10
     $timer = [diagnostics.stopwatch]::StartNew()
     while ( ($timer.elapsed -lt $timeout) -and `
-            ((Test-Path $FileName)-eq $false  ))
+            ((Test-Path $fileName)-eq $false  ))
     {
         Start-Sleep -Milliseconds 200   
     }
     #And a little more to avoid problems while loading later
     Start-Sleep -Milliseconds 100 
-    Return (Test-Path $FileName)
+    Return (Test-Path $fileName)
  }
 
 function Read-FiddlerAICapture {
@@ -166,14 +169,14 @@ Param (
     $fileName = "$($env:TEMP)LastSession.json",
     [Switch]$QuickPulse
 )
-    if (!(Test-Path -LiteralPath $FileName)) {
-        Write-warning  "Cannot find path '$FileName' because it does not exist."
+    if (!(Test-Path -LiteralPath $fileName)) {
+        Write-warning  "Cannot find path '$fileName' because it does not exist."
         return $null
     }
     $Capture = Get-Content $fileName |Convertfrom-json 
     #$Capture.log.entries= $Capture.log.entries | Where-Object { ($_.request.url -like 'https://*.services.visualstudio.com/*') }      
     if ( $Capture -eq $null -or  $Capture -isnot 'System.Management.Automation.PSCustomObject' ) {
-        Write-Verbose 'Read-Fiddler : Empty file' -Verbose
+        Write-Verbose 'Read-FiddlerAICapture : Empty file' -Verbose
         return $null
     }
     if ($QuickPulse) {
@@ -215,7 +218,7 @@ Param (
         #$Capture | Add-Member -Name 'AllTelemetry2' -MemberType ScriptProperty -Value {@( $This.log.Entries| foreach { Write-Output $_.AITelemetry } )}
         #$Capture | Add-Member -Name 'AllResponses2' -MemberType ScriptProperty -Value {@( $This.log.Entries| foreach { Write-Output $_.AIResponse  } )}
         
-        Return  $Capture
+        Return $Capture
     }
 }
 
@@ -229,8 +232,9 @@ Param (
     $Result = $null
     Try { 
         $fileName = (New-TemporaryFile).FullName
-        $Result = Save-FiddlerCapture -FileName  $fileName -ProcessID $ProcessID -Show:$Show
-        $Result = Read-FiddlerAICapture -FileName  $fileName 
+        Write-Verbose "FileName: $($fileName)"
+        $Result = Save-FiddlerCapture -FileName $fileName -ProcessID $ProcessID -Show:$Show -Verbose:$Verbose
+        $Result = Read-FiddlerAICapture -FileName $fileName -Verbose:$Verbose
     } Finally {
         if ($Result -eq $null ) {
             Write-Verbose 'Return an Empty structure' -Verbose
@@ -291,6 +295,25 @@ param ()
 	return $null
 }
 
+function Install-FiddlerScript {
+    [CmdletBinding()]
+    param ()
+
+    $myDocumentsFolder = [Environment]::GetFolderPath("MyDocuments")
+    $fiddlerScriptFolder = "$($myDocumentsFolder)\Fiddler2\Scripts"
+    $fiddlerScriptFile = "$($fiddlerScriptFolder)\CustomRules.js"
+
+    $file = Get-Content $fiddlerScriptFile
+    $containsWord = $file | %{$_ -match "dumpjson"}
+    if ($containsWord -contains $true) {
+        Write-Verbose "FiddlerScript already installed. Skipping."
+    } else {
+        Write-Verbose "FiddlerScript not installed. Installing."
+        # Create backup
+        Copy-Item $fiddlerScriptFile "$($fiddlerScriptFile)-$(Get-Date -Format 'yyyyMMddhhmmss')"
+        Copy-Item "$($PSScriptRoot)\Fiddler-CustomRules.js" $fiddlerScriptFile -Force -Confirm:$False
+    }
+}
 
 Function Test-RegistryValue {
     param(
@@ -362,3 +385,4 @@ Fiddlerscript function
 
 #>
 
+Install-FiddlerScript -Verbose

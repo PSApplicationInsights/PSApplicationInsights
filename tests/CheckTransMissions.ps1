@@ -1,4 +1,4 @@
-﻿
+﻿Import-Module "$($PSModuleRoot)\FiddlerTests.psm1"
 
 <#
 Add fiddlerscript to save the SAZ and TXT forms
@@ -14,13 +14,13 @@ Add fiddlerscript to save the SAZ and TXT forms
 
 #>
 if ($false) {
-Start-Process "C:\Program Files (x86)\Fiddler2\Fiddler.exe" 
+Start-Process (Get-FiddlerBinary -Name "Fiddler")
 
 #&"C:\Program Files (x86)\Fiddler2\ExecAction.exe" hide
-&"C:\Program Files (x86)\Fiddler2\ExecAction.exe" Show
+&(Get-FiddlerBinary -Name "ExecAction") Show
 
-&"C:\Program Files (x86)\Fiddler2\ExecAction.exe" clear
-&"C:\Program Files (x86)\Fiddler2\ExecAction.exe" start
+&(Get-FiddlerBinary -Name "ExecAction") clear
+&(Get-FiddlerBinary -Name "ExecAction") start
 
 #init a client and send basic PII information for correlation
 #this incudes the username and the machine name
@@ -28,11 +28,11 @@ $Client = New-AIClient -Key $key -AllowPII
 Send-AIEvent "Allow PII" -Flush
 
 
-&"C:\Program Files (x86)\Fiddler2\ExecAction.exe" stop
+&(Get-FiddlerBinary -Name "ExecAction") stop
 #Select the sessions
-&"C:\Program Files (x86)\Fiddler2\ExecAction.exe" "@dc.services.visualstudio.com"
+&(Get-FiddlerBinary -Name "ExecAction") "@dc.services.visualstudio.com"
 
-&"C:\Program Files (x86)\Fiddler2\ExecAction.exe" SaveSelected 
+&(Get-FiddlerBinary -Name "ExecAction") SaveSelected 
 
 
 ii "C:\Users\josverl\OneDrive - Microsoft\Documents\Fiddler2\Captures"

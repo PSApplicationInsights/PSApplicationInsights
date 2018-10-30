@@ -142,7 +142,7 @@ Describe "PSApplicationInsights Module" {
     
     Context 'New Session' {
         BeforeEach {
-            Start-FiddlerCapture 
+            Start-FiddlerCapture
         }
         AfterEach {
             Stop-FiddlerCapture
@@ -181,8 +181,10 @@ Describe "PSApplicationInsights Module" {
             $Client.Context.Component.Version | should be $Version
             Send-AIEvent 'Ping'
             Flush-AIClient
+
+            Write-Verbose "Get-FiddlerCapture"
             #Now check what has been transmitted 
-            $Capture = Get-FiddlerCapture  
+            $Capture = Get-FiddlerCapture -Verbose  
             $Capture.ErrorCount | Should be 0
             #Filter
             [array]$MyTelemetry = FilterCapture $Capture -Type 'Event'
@@ -190,7 +192,7 @@ Describe "PSApplicationInsights Module" {
             if ($MyTelemetry.Count -eq 1) { 
                 $MyTelemetry[0].tags.'ai.application.ver' | Should be $Version
                 $MyTelemetry[0].tags.'ai.user.id' | Should be $env:USERNAME
-                $MyTelemetry[0].tags.'ai.device.id' | Should be $env:COMPUTERNAME 
+                $MyTelemetry[0].tags.'ai.device.id' | Should -BeIn ($env:COMPUTERNAME, $env:COMPUTERNAME.$env:USERDNSDOMAIN)
 
                 $MyTelemetry[0].tags.'ai.user.userAgent' | Should be  $Host.Name
 
