@@ -1,4 +1,6 @@
-﻿<#
+﻿Import-Module "$(Split-Path $PSScriptRoot -Parent)\private\HelperFunctions.psm1" -ErrorAction SilentlyContinue
+
+<#
  # Dependency
 #>
 
@@ -131,3 +133,4 @@ function Send-AIDependency
 
 
 
+Export-ModuleMember -Function * -Alias *

@@ -1,4 +1,6 @@
-﻿<#
+﻿Import-Module "$(Split-Path $PSScriptRoot -Parent)\private\HelperFunctions.psm1"
+
+<#
 .Synopsis
     Start collection perfromance counters and send them to App Insights
 .DESCRIPTION
@@ -138,4 +140,4 @@ function Stop-AIPerformanceCollector
     }
 }
 
-
+Export-ModuleMember -Function * -Alias *

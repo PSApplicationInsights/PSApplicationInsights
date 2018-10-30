@@ -1,4 +1,6 @@
-﻿<#
+﻿Import-Module "$(Split-Path $PSScriptRoot -Parent)\private\HelperFunctions.psm1"
+
+<#
 .Synopsis
    Send a Custom Event to Application Insights.
    A custom event is a data point that you can display both in in Metrics Explorer as an aggregated count, 
@@ -51,7 +53,7 @@ function Send-AIPageView
 
     #Send the callstack
     if ($NoStack -ne $True) { 
-        $dictProperties = getCallerInfo -level (2+$StackWalk)
+        $dictProperties = Get-CallerInfo -level (2+$StackWalk)
     }
     #Add the Properties to Dictionary
     if ($Properties) { 
@@ -81,4 +83,4 @@ function Send-AIPageView
     }
 }
 
-
+Export-ModuleMember -Function * -Alias *

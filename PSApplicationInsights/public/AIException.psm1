@@ -1,4 +1,6 @@
-﻿<#
+﻿Import-Module "$(Split-Path $PSScriptRoot -Parent)\private\HelperFunctions.psm1"
+
+<#
 .Synopsis
     Handle sending exceptions and Powershell errors via App Insights
 
@@ -96,7 +98,7 @@ function Send-AIException
     #Note this is apparently ignored by AI 
 <#    
     if ($NoStack -ne $True) { 
-        $dictProperties = getCallerInfo -level (2+$StackWalk) -FullStack 
+        $dictProperties = Get-CallerInfo -level (2+$StackWalk) -FullStack 
         #Add the caller info in the callstack 
         foreach ($Prop in $dictProperties.GetEnumerator()) {
             $Result = $AIExeption.Properties.TryAdd($Prop.Key, $Prop.Value)
@@ -155,3 +157,5 @@ function Send-AIException
         $client.Flush()
     }
 }
+
+Export-ModuleMember -Function * -Alias *

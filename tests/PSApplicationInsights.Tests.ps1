@@ -25,20 +25,8 @@ if ($PSScriptRoot ) {
 $TestPath = "$($BasePath)\tests\"
 $BasePath = "$($BasePath)\PSApplicationInsights\"
 
-#Load Fiddler Module to see what is sent across the wire 
-Import-Module "$($TestPath)FiddlerTests.psm1" -Force -DisableNameChecking
-
-#Make sure A fresh fiddler is started 
-#Stop-Fiddler 
-Ensure-Fiddler
-Write-Verbose 'Wait for fiddler' -Verbose
-Start-Sleep 4 
-Stop-FiddlerCapture
-
-
-
-
-Get-Module -Name 'PSApplicationInsights' -All | Remove-Module -Force -ErrorAction SilentlyContinue
+Get-Module -All | Where-Object { $_.Path -like '*PSApplicationInsights*' } | Remove-Module -Force -ErrorAction SilentlyContinue
+#Get-Module -Name 'PSApplicationInsights' -All | Remove-Module -Force -ErrorAction SilentlyContinue
 if ($TestInstalledModule) { 
     Write-Verbose 'Load locally installed module' -Verbose
     $M = Import-Module -Name PSApplicationInsights -PassThru
@@ -48,6 +36,17 @@ if ($TestInstalledModule) {
     Write-Verbose '--------- Load Module under development ------------' -Verbose 
     Import-Module "$($BasePath)PSApplicationInsights.psd1" -Force -Verbose
 }
+
+
+#Load Fiddler Module to see what is sent across the wire 
+Import-Module "$($TestPath)FiddlerTests.psm1" -Force -DisableNameChecking
+
+#Make sure A fresh fiddler is started 
+#Stop-Fiddler 
+Ensure-Fiddler
+Write-Verbose 'Wait for fiddler' -Verbose
+Start-Sleep 4 
+Stop-FiddlerCapture
 
 #Common test function 
 Function FilterCapture {
@@ -163,8 +162,10 @@ Describe "PSApplicationInsights Module" {
 
         It 'can Init a new log AllowPII session' {
             $Version = "2.3.4"
-            $client = New-AIClient -Key $key -AllowPII -Version $Version
+            Write-Verbose "New-AIClient"
+            $client = New-AIClient -Key $key -AllowPII -Version $Version -Verbose
             
+            Write-Verbose "Check Client"
             $Global:AISingleton.Client | Should not be $null
 
             $client | Should not be $null

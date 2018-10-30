@@ -1,3 +1,5 @@
+Import-Module "$(Split-Path $PSScriptRoot -Parent)\private\HelperFunctions.psm1"
+
 <#
 .Synopsis
     Starts logging a live metrics stream to App Insights
@@ -125,3 +127,5 @@ Param
 
     }
 }
+
+Export-ModuleMember -Function * -Alias *

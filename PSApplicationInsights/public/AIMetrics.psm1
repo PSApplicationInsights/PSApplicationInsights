@@ -1,4 +1,6 @@
-﻿<#
+﻿Import-Module "$(Split-Path $PSScriptRoot -Parent)\private\HelperFunctions.psm1"
+
+<#
 .Synopsis
     Send a metric in the format of Key = Value 
 
@@ -89,7 +91,7 @@ function Send-AIMetric
     #Add the callstack
     if ($NoStack -ne $True) { 
         Write-verbose 'Add Caller information'
-        $dictProperties = getCallerInfo -level (2+$StackWalk)
+        $dictProperties = Get-CallerInfo -level (2+$StackWalk)
     }
     #Add the Properties to Dictionary
     if ($Properties) { 
@@ -106,5 +108,4 @@ function Send-AIMetric
     }
 }
 
-
-
+Export-ModuleMember -Function * -Alias *

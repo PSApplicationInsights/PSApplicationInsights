@@ -58,7 +58,7 @@ function Get-StringHash {
 <#
     Helper function to get the script and the line number of the calling function
 #>
-function getCallerInfo 
+function Get-CallerInfo 
 {
 [CmdletBinding()]
 param(
@@ -105,7 +105,7 @@ param(
     Helper function to get the calling script or module version
     checks Script, Invocation Info, Module and Folder names
 #>
-function getCallerVersion 
+function Get-CallerVersion 
 {
 [CmdletBinding()]
 param(
@@ -118,7 +118,7 @@ param(
     
     #The level to track back should not exceed the depth of the callstack, so limit it where needed 
     $level = [Math]::Min( $level, $Stack.Length -1 )
-    Write-Verbose "getCallerVersion -level $level"
+    Write-Verbose "Get-CallerVersion -level $level"
     #Default Caller Version to 0.0
     [Version]$CallerVersion = '0.0'
     try { 
@@ -131,7 +131,7 @@ param(
             $info = Test-ScriptFileInfo -Path $caller.ScriptName -ErrorAction SilentlyContinue
             if ( $info ) {
                 $CallerVersion = $info.Version
-                Write-Verbose "getCallerVersion found script version $CallerVersion"
+                Write-Verbose "Get-CallerVersion found script version $CallerVersion"
                 return $CallerVersion
             }
         } else {
@@ -151,7 +151,7 @@ param(
                 #version is a named capture block 
                 $CallerVersion =  $Matches['Version']
 
-                Write-Verbose "getCallerVersion found InvocationInfo.MyCommand version $CallerVersion"
+                Write-Verbose "Get-CallerVersion found InvocationInfo.MyCommand version $CallerVersion"
                 return $CallerVersion
             }
         } else {
@@ -165,7 +165,7 @@ param(
                 #version is a named capture block 
                 $CallerVersion =  $Matches['Version']
 
-                Write-Verbose "getCallerVersion found InvocationInfo version $CallerVersion"
+                Write-Verbose "Get-CallerVersion found InvocationInfo version $CallerVersion"
                 return $CallerVersion
             }
         }
@@ -180,7 +180,7 @@ param(
         $info = Test-ModuleManifest -Path $Filename -ErrorAction SilentlyContinue
         if ( $info ) {
             $CallerVersion = $info.Version
-            Write-Verbose "getCallerVersion found Module version $CallerVersion"
+            Write-Verbose "Get-CallerVersion found Module version $CallerVersion"
             return $CallerVersion
         }
     } catch { 
@@ -200,11 +200,11 @@ param(
         }
         if ($found) {
             #return last found version
-            Write-Verbose "getCallerVersion found Folder version $CallerVersion"
+            Write-Verbose "Get-CallerVersion found Folder version $CallerVersion"
             return $CallerVersion
         }
     } catch {
-        Write-Verbose "getCallerVersion no version found"         
+        Write-Verbose "Get-CallerVersion no version found"         
         return $CallerVersion
     }
     Write-Verbose "no version found"

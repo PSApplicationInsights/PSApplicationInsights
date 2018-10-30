@@ -1,4 +1,6 @@
 ﻿
+Import-Module "$(Split-Path $PSScriptRoot -Parent)\private\HelperFunctions.psm1"
+
 <#
 .Synopsis
    Send a Custom Event to Application Insights.
@@ -43,6 +45,7 @@ function Send-AIEvent
         [switch] $Flush
 
     )
+
     #Check for a specified AI client
     if ($Client -eq $null) {
         If ( ($Global:AISingleton ) -AND ( $Global:AISingleton.Client ) ) {
@@ -62,7 +65,7 @@ function Send-AIEvent
 
     #Send the callstack
     if ($NoStack -ne $True) { 
-        $dictProperties = getCallerInfo -level (2+$StackWalk)
+        $dictProperties = Get-CallerInfo -level (2+$StackWalk)
     }
     #Add the Properties to Dictionary
     if ($Properties) { 
@@ -83,3 +86,5 @@ function Send-AIEvent
         $client.Flush()
     }
 }
+
+Export-ModuleMember -Function * -Alias *

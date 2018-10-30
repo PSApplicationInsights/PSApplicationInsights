@@ -80,7 +80,7 @@ function New-AIClient
         if ( [String]::IsNullOrEmpty($OperationID) ){
         #Find a sensible toplevel Operation ID
             #Get the topmost caller's information
-            $TopInfo = getCallerInfo -level (Get-PSCallStack).Length
+            $TopInfo = Get-CallerInfo -level (Get-PSCallStack).Length
             if     ($TopInfo.Script)                      { $OperationID = $TopInfo.Script } 
             else { 
                 if ($TopInfo.Command -ne '<ScriptBlock>') { $OperationID = $TopInfo.Command } 
@@ -211,7 +211,7 @@ function New-AIClient
 				
 				
 				  # Test if the System.Diagnostics.DiagnosticSource DLL exists in the OM directory.
-            $dllPath = [System.IO.Path]::Combine((Split-Path $PSScriptRoot -Parent), "packages", "System.Diagnostics.DiagnosticSource.4.5.1", "lib", "net45", "System.Diagnostics.DiagnosticSource.dll")
+            $dllPath = [System.IO.Path]::Combine($PSScriptRoot, "packages", "System.Diagnostics.DiagnosticSource.4.5.1", "lib", "net45", "System.Diagnostics.DiagnosticSource.dll")
             Write-Verbose "Testing file path: '$dllPath'"
             if (!(Test-Path -LiteralPath $dllPath -PathType Leaf)) {
                 Write-Verbose 'Not found. Rethrowing exception.'
@@ -224,13 +224,14 @@ function New-AIClient
             Write-Verbose "Adding assembly resolver."
             $onAssemblyResolve = [System.ResolveEventHandler] {
                 param($sender, $e)
-
+                Write-Verbose "blah"
                 if ($e.Name -like 'System.Diagnostics.DiagnosticSource, *') {
                     Write-Verbose "Resolving '$($e.Name)'"
-                     $dllPath = [System.IO.Path]::Combine((Split-Path $PSScriptRoot -Parent), "packages", "System.Diagnostics.DiagnosticSource.4.5.1", "lib", "net45", "System.Diagnostics.DiagnosticSource.dll")
+                     $dllPath = [System.IO.Path]::Combine($PSScriptRoot, "packages", "System.Diagnostics.DiagnosticSource.4.5.1", "lib", "net45", "System.Diagnostics.DiagnosticSource.dll")
 					Write-Verbose $dllPath
-					Write-Output "test"
-                    return [System.Reflection.Assembly]::LoadFrom($dllPath)
+					Write-Verbose "test"
+                    $loaded = [System.Reflection.Assembly]::LoadFrom($dllPath)
+                    return $loaded
                 }
 
                 return $null
@@ -248,18 +249,14 @@ function New-AIClient
                 #[System.AppDomain]::CurrentDomain.remove_AssemblyResolve($onAssemblyResolve)
 			#}
 				
-				
-				
-				
                 $Global:AISingleton.Configuration.TelemetryInitializers | 
                     Where-Object {$_ -is 'Microsoft.ApplicationInsights.Extensibility.ITelemetryModule'} |
                     ForEach-Object { 
                         Try { 
-                            Write-Verbose "test"
                             $_.Initialize($Global:AISingleton.Configuration); 
                             Write-Verbose ".."
                         } catch { 
-                            Write-Warning 'Error during initialisation  of Telemetry Module'
+                            Write-Warning 'Error during initialisation of Telemetry Module'
                         }
                     }
             }
@@ -274,21 +271,32 @@ function New-AIClient
 						    $_.Initialize($Global:AISingleton.Configuration); 
                             Write-Verbose ".."
                         } catch { 
-                            Write-Warning 'Error during initialisation  of Telemetry Module'
+                            Write-Warning 'Error during initialisation of Telemetry Processory'
                         } 
                     }
             } 
-			
-			
-			
 			
             #Now get the initialised modules 
             $TelemetryModules = [Microsoft.ApplicationInsights.Extensibility.Implementation.TelemetryModules]::Instance;
             
             # todo: check if the 2nd initialisation is really needed 
-            $TelemetryModules.Modules | 
-                Where-Object {$_ -is 'Microsoft.ApplicationInsights.Extensibility.ITelemetryModule'} |
-                ForEach-Object { $_.Initialize($Global:AISingleton.Configuration); }
+           #  $TelemetryModules.Modules | 
+            #    Where-Object {$_ -is 'Microsoft.ApplicationInsights.Extensibility.ITelemetryModule'} |
+             #   ForEach-Object { 
+              #      Write-Verbose "-----"
+               #     Write-Verbose $_
+                #    Write-Verbose "-----"
+                 #   Write-Verbose $Global:AISingleton.Configuration
+                  #  Write-Verbose "-----"
+                   # Try { 
+                    #    $_.Initialize($Global:AISingleton.Configuration); 
+                     #   Write-Verbose ".."
+                    #} catch { 
+                     #   Write-Warning 'Error during initialisation of Telemetry Module'
+                        #Write-Warning $_.Exception | Format-List -Force
+                    #}
+                
+                #}
             
             #Time to start the client 
             $client = [Microsoft.ApplicationInsights.TelemetryClient]::new($Global:AISingleton.Configuration)
@@ -348,7 +356,7 @@ function New-AIClient
 
                 if ([string]::IsNullOrEmpty($Version) ) {
                     write-verbose "retrieve version of calling script or module."
-                    $Version = getCallerVersion 
+                    $Version = Get-CallerVersion 
                 } 
                 write-verbose "use version $([string]$version)"
                 $client.Context.Component.Version = [string]($version)
@@ -361,7 +369,8 @@ function New-AIClient
                 Throw "Could not create ApplicationInsights Client.."
             }
         } catch {
-			Write-Error $_.Exception.Message
+            Write-Error $_.Exception.Message
+            Write-Error $_.Exception|format-list -force
             Throw "Could not create ApplicationInsights Client."
         }
     }

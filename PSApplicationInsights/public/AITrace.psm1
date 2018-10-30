@@ -1,4 +1,6 @@
-﻿<#
+﻿Import-Module "$(Split-Path $PSScriptRoot -Parent)\private\HelperFunctions.psm1"
+
+<#
 .Synopsis
    Send a trace message to Application Insights 
 .EXAMPLE
@@ -55,7 +57,7 @@ function Send-AITrace
 
     #Send the callstack
     if ($NoStack -ne $True) { 
-        $dictProperties = getCallerInfo -level (2+$StackWalk) -FullStack:$FullStack
+        $dictProperties = Get-CallerInfo -level (2+$StackWalk) -FullStack:$FullStack
     }
     #Add the Properties to Dictionary
     if ($Properties) { 
@@ -75,4 +77,4 @@ function Send-AITrace
         $client.Flush()
     }
 }
-
+Export-ModuleMember -Function * -Alias *

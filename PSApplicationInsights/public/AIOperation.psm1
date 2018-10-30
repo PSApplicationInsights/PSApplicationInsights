@@ -1,4 +1,6 @@
-﻿<#
+﻿Import-Module "$(Split-Path $PSScriptRoot -Parent)\private\HelperFunctions.psm1"
+
+<#
 
 // Establish an operation context and associated telemetry item:
 using (var operation = telemetry.StartOperation<RequestTelemetry>("operationName"))
