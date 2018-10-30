@@ -321,7 +321,7 @@ function Install-FiddlerScript {
         Copy-Item $fiddlerScriptFile "$($fiddlerScriptFile)-$(Get-Date -Format 'yyyyMMddhhmmss')"
     }
 
-    if (!Test-Path $fiddlerScriptFolder -PathType Container)
+    if (-not (Test-Path $fiddlerScriptFolder -PathType Container))
     {
         New-Item -ItemType Directory -Force -Path $fiddlerScriptFolder | Out-Null
     }
