@@ -1,4 +1,5 @@
 ﻿Import-Module "$(Split-Path $PSScriptRoot -Parent)\private\HelperFunctions.psm1"
+Import-Module "$(PSScriptRoot)\AITrace.psm1"
 
 <#
 .Synopsis

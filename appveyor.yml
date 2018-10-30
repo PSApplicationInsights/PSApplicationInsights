@@ -8,7 +8,8 @@ skip_commits:
 install:
   - cinst pester -y
   - cinst fiddler -y
-  - cinst psake -y
+  #- cinst psake -y
+  - ps: Install-Module psake -Force -Confirm
   - ps: Install-Module -Name CredentialManager -Force -Confirm
   - ps: .\build\install-NugetPackages.ps1
 
