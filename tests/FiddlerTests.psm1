@@ -233,8 +233,8 @@ Param (
     Try { 
         $fileName = (New-TemporaryFile).FullName
         Write-Verbose "FileName: $($fileName)"
-        $Result = Save-FiddlerCapture -FileName $fileName -ProcessID $ProcessID -Show:$Show -Verbose:$Verbose
-        $Result = Read-FiddlerAICapture -FileName $fileName -Verbose:$Verbose
+        $Result = Save-FiddlerCapture -FileName $fileName -ProcessID $ProcessID -Show:$Show
+        $Result = Read-FiddlerAICapture -FileName $fileName
     } Finally {
         if ($Result -eq $null ) {
             Write-Verbose 'Return an Empty structure' -Verbose
