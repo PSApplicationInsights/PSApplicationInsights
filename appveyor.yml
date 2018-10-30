@@ -10,8 +10,10 @@ install:
   - cinst fiddler -y
   - cinst psake -y
   - ps: Install-Module -Name CredentialManager -Force -Confirm
+  - ps: .\build\install-NugetPackages.ps1
 
-build: off
+build_script:
+  - ps: .\build\build.ps1
 
 test_script:
 # temporary to get build process working again... install pester and add to psmodulepath
