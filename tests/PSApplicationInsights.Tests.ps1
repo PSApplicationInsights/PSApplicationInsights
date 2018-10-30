@@ -15,8 +15,18 @@ Param (
     [switch]$TestInstalledModule
 )
 
+if ($PSScriptRoot ) { 
+    $BasePath = split-path -parent $PSScriptRoot
+} else {
+    #Handle run in ISE with open file
+    $BasePath = split-path -parent (split-path -parent $psISE.CurrentFile.Fullpath)
+}
+
+$TestPath = "$($BasePath)\tests\"
+$BasePath = "$($BasePath)\PSApplicationInsights\"
+
 #Load Fiddler Module to see what is sent across the wire 
-Import-Module .\Tests\FiddlerTests.psm1 -Force -DisableNameChecking
+Import-Module "$($TestPath)FiddlerTests.psm1" -Force -DisableNameChecking
 
 #Make sure A fresh fiddler is started 
 #Stop-Fiddler 
@@ -24,6 +34,9 @@ Ensure-Fiddler
 Write-Verbose 'Wait for fiddler' -Verbose
 Start-Sleep 4 
 Stop-FiddlerCapture
+
+
+
 
 Get-Module -Name 'PSApplicationInsights' -All | Remove-Module -Force -ErrorAction SilentlyContinue
 if ($TestInstalledModule) { 
@@ -33,8 +46,7 @@ if ($TestInstalledModule) {
 
 } else { 
     Write-Verbose '--------- Load Module under development ------------' -Verbose 
-    Import-Module "..\PSApplicationInsights\PSApplicationInsights.psd1" -Force 
-
+    Import-Module "$($BasePath)PSApplicationInsights.psd1" -Force -Verbose
 }
 
 #Common test function 

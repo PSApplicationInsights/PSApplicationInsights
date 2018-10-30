@@ -15,11 +15,18 @@
  #  v0.4 Add logic to deal with Scripts and Modules
 #>
 
-Task default -Depends TestInstall, Dependencies
+Include ".\psakefunctions.ps1"
+
+.\install-NugetPackages.ps1
+
+
+Task default -Depends Test
 
 Properties {
+    # Modules
+
     # The name of your module should match the basename of the PSD1 file.
-    if ($PSScriptRoot ) { 
+    if ($PSScriptRoot) { 
         $BasePath = split-path -parent $PSScriptRoot
     } else {
         #Handle run in ISE with open file
@@ -33,9 +40,15 @@ Properties {
         Write-Verbose "Using the Working Directory as Base" -Verbose
         $BasePath =$pwd
     }
-    $Modules = @(Get-Item $BasePath*.psd1 | Foreach-Object {$null = Test-ModuleManifest -Path $_ -ErrorAction SilentlyContinue; if ($?) {
+
+    Write-Verbose "Looking for *.psd1 in $($BasePath)"
+    $Modules = @(Get-ChildItem $BasePath -Filter *.psd1 | Foreach-Object {$null = Test-ModuleManifest -Path $_.FullName -ErrorAction SilentlyContinue; if ($?) {
                 $_
             }})
+
+   #$Modules = Get-ChildItem $BasePath -Filter *.psd1 | Select-Object -ExpandProperty FullName
+
+    Write-Verbose "Module Count: $($Modules.Count)"
 
     $Target=@{Type = "";Name ="" }
 
@@ -47,7 +60,7 @@ Properties {
         Write-verbose "No modules found, looking for a script"
         #work around strange behaviour test-scriptFileInfo
 
-        $scripts = @(Get-Item $TestPath*.ps1|ForEach-Object {
+        $scripts = @(Get-Item $BasePath\*.ps1|ForEach-Object {
                 Try { 
                     $null =Test-ScriptFileInfo -Path $_ -ErrorAction SilentlyContinue; 
                 } catch {
@@ -72,7 +85,11 @@ Properties {
     # $PublishRootDir should be ignored if it is under the workspace directory.
     $PublishRootDir = join-path $BasePath 'Release'
     $ReleaseDir     =  join-path $PublishRootDir  $ModuleName
+}
 
+Properties {
+    #Excludes
+    
     # The following items will not be copied to the $ReleaseDir.
     # Add items that should not be published with the module.
     $Exclude = @(
@@ -82,17 +99,23 @@ Properties {
         #donot copy dev and build artefacts
         'scratch','build.ps1','default.ps1', 'psakefile.ps1', 'nuget.exe'
     )
+}
 
+Properties {
+    # Publishing
     $TestRepository = "Dev" #$null
     # Name of the repository you wish to publish to. Default repo is the PSGallery.
-    $PublishRepository = "PSGallery" #$null
+    $PublishRepository = $null #"PSGallery"
 
     # Your NuGet API key for the PSGallery.  
-    $NuGetApiKey = $null
-    if ($NuGetApiKey -eq $Null) {
-        $Creds = Get-StoredCredential  -Target 'PSGallery:NuGetApiKey'
-        if ($Creds) {
-            $NuGetApiKey = $creds.GetNetworkCredential().Password
+    if ($PublishRepository -eq "PSGallery")
+    {
+        $NuGetApiKey = $null
+        if ($NuGetApiKey -eq $Null) {
+            $Creds = Get-StoredCredential  -Target 'PSGallery:NuGetApiKey'
+            if ($Creds) {
+                $NuGetApiKey = $creds.GetNetworkCredential().Password
+            }
         }
     }
 }
@@ -101,12 +124,17 @@ Properties {
 FormatTaskName "|>-------- {0} --------<|"
 
 Task Dependencies {
+    Write-Verbose "Starting dependencies Task"
     .\install-NugetPackages.ps1
 }
 
-Task Test -Depends Dependencies  {
- 
-    $Results = Invoke-Pester -PassThru
+Task Build -Depends Dependencies {
+    Write-Verbose "In Dependencies"
+}
+
+Task Test -Depends Build  {
+    Write-Verbose "Starting Test Task"
+    $Results = Invoke-Pester -Path ..\ -PassThru
     if  ($Results.FailedCount -gt 0) {
           Throw "Testing Failed"
     }

@@ -1,6 +1,7 @@
 /Release
+/release
 /.vscode
 /Scratch
 /Setup
 nuget.exe
-/packages/*
+**/packages/*

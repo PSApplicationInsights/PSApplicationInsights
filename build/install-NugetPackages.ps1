@@ -11,5 +11,5 @@ if (!(Test-Path nuget.exe))
 #Make sure to update Nuget 
 .\nuget.exe update -self
 #Now install the packages as specified in ther packages.config file 
-.\nuget.exe install ..\packages.config -o ../packages
+.\nuget.exe install ..\packages.config -o ../PSApplicationInsights/packages
 

@@ -1,4 +1,8 @@
-﻿Get-Module -Name 'PSApplicationInsights' -All | Remove-Module -Force -ErrorAction SilentlyContinue
+﻿
+Invoke-psake -Verbose
+
+
+Get-Module -Name 'PSApplicationInsights' -All | Remove-Module -Force -ErrorAction SilentlyContinue
 cd C:\mize\dev\GitHub\PSApplicationInsights\PSApplicationInsights
 c:
 Import-Module .\src\PSApplicationInsights.psd1
@@ -10,4 +14,3 @@ $Client = New-AIClient -Key $key -Verbose
 Send-AIEvent "Basic Hashed non-PII information"
 
 
-Invoke-psake .\build\psakefile.ps1
