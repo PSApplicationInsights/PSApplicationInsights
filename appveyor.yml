@@ -11,7 +11,7 @@ install:
   - cinst psake -y
   - ps: Install-Module -Name CredentialManager -Force -Confirm
 
-build: false
+build: off
 
 test_script:
 # temporary to get build process working again... install pester and add to psmodulepath
