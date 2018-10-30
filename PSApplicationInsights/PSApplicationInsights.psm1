@@ -224,12 +224,10 @@ function New-AIClient
             Write-Verbose "Adding assembly resolver."
             $onAssemblyResolve = [System.ResolveEventHandler] {
                 param($sender, $e)
-                Write-Verbose "blah"
                 if ($e.Name -like 'System.Diagnostics.DiagnosticSource, *') {
                     Write-Verbose "Resolving '$($e.Name)'"
                      $dllPath = [System.IO.Path]::Combine($PSScriptRoot, "packages", "System.Diagnostics.DiagnosticSource.4.5.1", "lib", "net45", "System.Diagnostics.DiagnosticSource.dll")
 					Write-Verbose $dllPath
-					Write-Verbose "test"
                     $loaded = [System.Reflection.Assembly]::LoadFrom($dllPath)
                     return $loaded
                 }

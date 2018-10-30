@@ -2,7 +2,7 @@ import-module .\FiddlerTests.psm1 -DisableNameChecking -Force
 
 #init a client and send basic PII information for correlation
 #this incudes the username and the machine name
-$fileName = 'C:\Users\josverl\OneDrive\PowerShell\PSAppInsights\Tests\LastSession.json'
+$fileName = "$($env:TEMP)LastSession.json"
 
 #Stop-Fiddler -wait
 Start-FiddlerCapture 
