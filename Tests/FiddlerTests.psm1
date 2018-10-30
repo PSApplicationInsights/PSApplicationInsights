@@ -78,7 +78,7 @@ Param (
     }
     #Make Sure fiddler is started 
     if (-not (Get-Process -Name 'Fiddler' -ErrorAction SilentlyContinue)) { 
-        Start-Process "C:\Program Files (x86)\Fiddler2\Fiddler.exe" -ArgumentList $Action 
+        Start-Process "$(Get-FiddlerBinary -Name 'Fiddler')" -ArgumentList $Action 
 
         #Wait for Fiddler to start 
         while(-not (Get-Process -Name 'Fiddler' -ErrorAction SilentlyContinue)) {    
@@ -88,7 +88,7 @@ Param (
         Start-Job  -Name 'Start Fiddler, stop capture' -ScriptBlock { 
             #Try a few times until we can control it
             for ($i = 0; $i -lt 10; $i++) {
-                $R = &"C:\Program Files (x86)\Fiddler2\ExecAction.exe" "Stop"
+                $R = &"$(Get-FiddlerBinary -Name 'ExecAction')" "Stop"
                 "Wait $i"
                 Start-Sleep -Milliseconds 200
             } 
@@ -104,12 +104,12 @@ param (
 )   
     Ensure-Fiddler -Show:$Show
     if ($Show) { 
-        &"C:\Program Files (x86)\Fiddler2\ExecAction.exe" Show
+        &"$(Get-FiddlerBinary -Name 'ExecAction')" Show
     } else {
-        &"C:\Program Files (x86)\Fiddler2\ExecAction.exe" hide
+        &"$(Get-FiddlerBinary -Name 'ExecAction')" hide
     }
-    &"C:\Program Files (x86)\Fiddler2\ExecAction.exe" clear
-    &"C:\Program Files (x86)\Fiddler2\ExecAction.exe" start
+    &"$(Get-FiddlerBinary -Name 'ExecAction')" clear
+    &"$(Get-FiddlerBinary -Name 'ExecAction')" start
  
 }
 function Stop-FiddlerCapture  {
@@ -120,31 +120,31 @@ param (
 )   
     Ensure-Fiddler -Show:$Show
     if ($Show) { 
-        &"C:\Program Files (x86)\Fiddler2\ExecAction.exe" Show
+        &"$(Get-FiddlerBinary -Name 'ExecAction')" Show
     } else {
-        &"C:\Program Files (x86)\Fiddler2\ExecAction.exe" hide
+        &"$(Get-FiddlerBinary -Name 'ExecAction')" hide
     }
-    &"C:\Program Files (x86)\Fiddler2\ExecAction.exe" stop
+    &"$(Get-FiddlerBinary -Name 'ExecAction')" stop
 }
 
 function Save-FiddlerCapture  {
 [CmdletBinding()]
 [OutputType([bool])]    
 Param (
-    $fileName = 'C:\Users\josverl\OneDrive\PowerShell\PSAppInsights\Tests\LastSession.json',
+    $fileName = "$($env:TEMP)LastSession.json",
     $ProcessID = $PID,
     [Switch]$Show
 )
     Ensure-Fiddler -Show:$Show
     if ($Show) { 
-        &"C:\Program Files (x86)\Fiddler2\ExecAction.exe" Show
+        &"$(Get-FiddlerBinary -Name 'ExecAction')" Show
     } else {
-        &"C:\Program Files (x86)\Fiddler2\ExecAction.exe" hide
+        &"$(Get-FiddlerBinary -Name 'ExecAction')" hide
     }
-    &"C:\Program Files (x86)\Fiddler2\ExecAction.exe" stop
+    &"$(Get-FiddlerBinary -Name 'ExecAction')" stop
     #Select Only the sessions sent by this PowerShell process 
-    &"C:\Program Files (x86)\Fiddler2\ExecAction.exe" "select @col.Process :$ProcessID"
-    &"C:\Program Files (x86)\Fiddler2\ExecAction.exe" "DumpJson $FileName"
+    &"$(Get-FiddlerBinary -Name 'ExecAction')" "select @col.Process :$ProcessID"
+    &"$(Get-FiddlerBinary -Name 'ExecAction')" "DumpJson $FileName"
 
     #Wait for File  For up to 10 secs 
     $timeout = new-timespan -Seconds 10
@@ -163,7 +163,7 @@ function Read-FiddlerAICapture {
 [CmdletBinding()]
 [OutputType([PSObject[]])]
 Param (
-    $fileName = 'C:\Users\josverl\OneDrive\PowerShell\PSAppInsights\Tests\LastSession.json',
+    $fileName = "$($env:TEMP)LastSession.json",
     [Switch]$QuickPulse
 )
     if (!(Test-Path -LiteralPath $FileName)) {
@@ -247,7 +247,7 @@ function Stop-Fiddler {
 param ( [Switch]$wait)    
     #Make Sure fiddler is started 
     if ((Get-Process -Name 'Fiddler' -ErrorAction SilentlyContinue)) { 
-        $R = &"C:\Program Files (x86)\Fiddler2\ExecAction.exe" "quit"
+        $R = &"$(Get-FiddlerBinary -Name 'ExecAction')" "quit"
     }
     #Clean up any remaining jobs 
     Get-Job  -Name 'Start Fiddler, stop capture' -ErrorAction SilentlyContinue | 
@@ -258,6 +258,66 @@ param ( [Switch]$wait)
         #Wait for Fiddler to stop 
         while((Get-Process -Name 'Fiddler' -ErrorAction SilentlyContinue)) {    
             Start-Sleep -Milliseconds 200  
+        }
+    }
+}
+
+function Get-FiddlerBinary {
+[CmdletBinding()]
+	param(
+		[ValidateSet("ExecAction", "Fiddler")]
+		[Parameter(Mandatory = $true)]
+		[string]$Name
+	)
+
+	switch($Name.ToLowerInvariant())
+	{
+		"execaction" { return "$(Get-FiddlerLocation)ExecAction.exe" }
+		"fiddler" {	return "$(Get-FiddlerLocation)Fiddler.exe" }
+		default { throw "binary not found" }
+	}
+}
+
+function Get-FiddlerLocation {
+[CmdletBinding()]
+param ()
+
+	# Fiddler location
+	if (Test-RegistryValue -Path "Registry::HKEY_CURRENT_USER\Software\Microsoft\Fiddler2\InstallerSettings" -Name "InstallPath")
+	{
+		return (Get-ItemProperty -Path Registry::HKEY_CURRENT_USER\Software\Microsoft\Fiddler2\InstallerSettings -Name InstallPath).InstallPath
+	}
+	
+	return $null
+}
+
+
+Function Test-RegistryValue {
+    param(
+        [Alias("PSPath")]
+        [Parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
+        [String]$Path
+        ,
+        [Parameter(Position = 1, Mandatory = $true)]
+        [String]$Name
+        ,
+        [Switch]$PassThru
+    ) 
+
+    process {
+        if (Test-Path $Path) {
+            $Key = Get-Item -LiteralPath $Path
+            if ($Key.GetValue($Name, $null) -ne $null) {
+                if ($PassThru) {
+                    Get-ItemProperty $Path $Name
+                } else {
+                    $true
+                }
+            } else {
+                $false
+            }
+        } else {
+            $false
         }
     }
 }

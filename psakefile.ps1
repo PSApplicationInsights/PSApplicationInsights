@@ -43,7 +43,7 @@ Properties {
         Write-verbose "No modules found, looking for a script"
         #work around strange behaviour test-scriptFileInfo
 
-        $scripts = @(Get-Item $BasePath\*.ps1|ForEach-Object {
+        $scripts = @(Get-Item $BasePath\tests\*.ps1|ForEach-Object {
                 Try { 
                     $null =Test-ScriptFileInfo -Path $_ -ErrorAction SilentlyContinue; 
                 } catch {
@@ -76,7 +76,7 @@ Properties {
         #donot copy nuget ballast
         'net40','tools','*.nupkg','Microsoft.ApplicationInsights.xml',
         #donot copy dev and build artefacts
-        'scratch','build.ps1','default.ps1'
+        'scratch','build.ps1','default.ps1', 'psakefile.ps1', 'nuget.exe'
     )
 
     $TestRepository = "Dev" #$null
@@ -129,7 +129,7 @@ Task Copy   -description "Copy items to the release folder" `
         #Note the subfolders are not copied :-( 
         
         #Robocopy to the rescue 
-        &robocopy "$BasePath" "$ReleaseDir" * /XD Release Released Tests .git .vscode scratch images /XF .git* *.tests.ps1 build.ps1 default.ps1 nuget.exe /S /NP /NFL /NDL
+        &robocopy "$BasePath" "$ReleaseDir" * /XD Release Released Tests .git .vscode scratch images /XF .git* *.tests.ps1 build.ps1 default.ps1 psakefile.ps1 nuget.exe /S /NP /NFL /NDL
 
         #Clean up the unneeded folders and stuff underneath the APplication Insights folders 
         $Modulefolders = Get-ChildItem -Path $ReleaseDir -Directory -Filter "Microsoft.*"

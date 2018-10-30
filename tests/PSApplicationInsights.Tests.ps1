@@ -25,15 +25,15 @@ Write-Verbose 'Wait for fiddler' -Verbose
 Start-Sleep 4 
 Stop-FiddlerCapture
 
-Get-Module -Name 'PSAppInsights' -All | Remove-Module -Force -ErrorAction SilentlyContinue
+Get-Module -Name 'PSApplicationInsights' -All | Remove-Module -Force -ErrorAction SilentlyContinue
 if ($TestInstalledModule) { 
     Write-Verbose 'Load locally installed module' -Verbose
-    $M = Import-Module -Name PSAppInsights -PassThru
+    $M = Import-Module -Name PSApplicationInsights -PassThru
     $m | Format-Table Name,version, Path
 
 } else { 
     Write-Verbose '--------- Load Module under development ------------' -Verbose 
-    Import-Module ".\PSAppInsights.psd1" -Force 
+    Import-Module ".\src\PSApplicationInsights.psd1" -Force 
 
 }
 
@@ -99,7 +99,7 @@ Describe 'should fail silently if no client is started' {
 
 }
 
-Describe "PSAppInsights Module" {
+Describe "PSApplicationInsights Module" {
     It "loads the AI Dll"  -Pending {
         New-Object Microsoft.ApplicationInsights.TelemetryClient  -ErrorAction SilentlyContinue -Verbose| Should not be $null
         #Use Get-modules  to list all loaded DLLs and check for the expected ones 
@@ -181,7 +181,7 @@ Describe "PSAppInsights Module" {
 
                 $MyTelemetry[0].tags.'ai.user.userAgent' | Should be  $Host.Name
 
-                $MyTelemetry[0].tags.'ai.operation.id' -in '<No file>','PSAppInsights.Tests.ps1','Pester.psm1'  | Should be $true
+                $MyTelemetry[0].tags.'ai.operation.id' -in '<No file>','PSApplicationInsights.Tests.ps1','Pester.psm1'  | Should be $true
             }
         }
 
@@ -565,7 +565,7 @@ Describe 'AI Dependency Nested Module' {
         $Watch1 | should not be $null
         $Watch1.GetType()  | should be 'System.Diagnostics.Stopwatch'
     }
-    It 'Depedency can use a stopwatch' {
+    It 'Dependency can use a stopwatch' {
         $Watch1.Stop()
         { Send-AIDependency -StopWatch $Watch1 -Name "TEST Dept." } | Should not Throw
     } 
