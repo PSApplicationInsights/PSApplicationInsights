@@ -303,19 +303,23 @@ function Install-FiddlerScript {
     $fiddlerScriptFolder = "$($myDocumentsFolder)\Fiddler2\Scripts"
     $fiddlerScriptFile = "$($fiddlerScriptFolder)\CustomRules.js"
 
-    $file = Get-Content $fiddlerScriptFile
-    $containsWord = $file | %{$_ -match "dumpjson"}
-    if ($containsWord -contains $true) {
-        Write-Verbose "FiddlerScript already installed. Skipping."
-    } else {
-        Write-Verbose "FiddlerScript not installed. Installing."
-        # Create backup
-        Copy-Item $fiddlerScriptFile "$($fiddlerScriptFile)-$(Get-Date -Format 'yyyyMMddhhmmss')"
-        Copy-Item "$($PSScriptRoot)\Fiddler-CustomRules.js" $fiddlerScriptFile -Force -Confirm:$False
+    if (Test-Path $fiddlerScriptFile)
+    {
+        $file = Get-Content $fiddlerScriptFile
+        $containsWord = $file | %{$_ -match "dumpjson"}
+        if ($containsWord -contains $true) {
+            Write-Verbose "FiddlerScript already installed. Skipping."
+            return
+        }
     }
+
+    Write-Verbose "FiddlerScript not installed. Installing."
+    # Create backup
+    Copy-Item $fiddlerScriptFile "$($fiddlerScriptFile)-$(Get-Date -Format 'yyyyMMddhhmmss')"
+    Copy-Item "$($PSScriptRoot)\Fiddler-CustomRules.js" $fiddlerScriptFile -Force -Confirm:$False
 }
 
-Function Test-RegistryValue {
+function Test-RegistryValue {
     param(
         [Alias("PSPath")]
         [Parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
