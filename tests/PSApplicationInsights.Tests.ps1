@@ -33,7 +33,7 @@ if ($TestInstalledModule) {
 
 } else { 
     Write-Verbose '--------- Load Module under development ------------' -Verbose 
-    Import-Module ".\src\PSApplicationInsights.psd1" -Force 
+    Import-Module "..\PSApplicationInsights\PSApplicationInsights.psd1" -Force 
 
 }
 

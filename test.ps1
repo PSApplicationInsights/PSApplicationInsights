@@ -10,4 +10,4 @@ $Client = New-AIClient -Key $key -Verbose
 Send-AIEvent "Basic Hashed non-PII information"
 
 
-Invoke-psake
+Invoke-psake .\build\psakefile.ps1

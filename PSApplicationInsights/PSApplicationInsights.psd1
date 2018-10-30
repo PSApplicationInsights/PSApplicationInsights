@@ -43,20 +43,20 @@
 
         #And the additional powershell modules
         # Send Base event types 
-        '.\AIEvent.psm1',
-        '.\AITrace.psm1',
-        '.\AIMetrics.psm1',
+        '.\public\AIEvent.psm1',
+        '.\public\AITrace.psm1',
+        '.\public\AIMetrics.psm1',
         # Exceptions and errors 
-        '.\AIException.psm1',   
+        '.\public\AIException.psm1',   
         # Waiting for dependencies                 
-        '.\AIDependency.psm1',
+        '.\public\AIDependency.psm1',
         #perf Counter 
-        '.\AIPerformanceCollector.psm1',
+        '.\public\AIPerformanceCollector.psm1',
         #Live perf counters 
-        '.\LiveMetrics.psm1',
+        '.\public\LiveMetrics.psm1',
 
     #   '.\AIOperation.psm1',
-        '.\HelperFunctions.psm1'
+        '.\private\HelperFunctions.psm1'
     )
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
@@ -85,7 +85,7 @@
             Tags = @('Tracing','ApplicationInsights','Monitoring','DevOps')
 
             # A URL to the license for this module.
-            LicenseUri = 'https://github.com/PSApplicationInsights/PSApplicationInsights/raw/master/LICENSE'
+            LicenseUri = 'https://github.com/PSApplicationInsights/PSApplicationInsights/blob/master/LICENSE'
 
             # A URL to the main website for this project.
             ProjectUri = 'https://github.com/PSApplicationInsights/PSApplicationInsights'
@@ -93,7 +93,7 @@
             IconUri = 'https://github.com/PSApplicationInsights/PSApplicationInsights/raw/master/images/PSAI.png'
 
             # ReleaseNotes of this module
-			ReleaseNotes = 'https://github.com/PSApplicationInsights/PSApplicationInsights/master/CHANGELOG.md'
+			ReleaseNotes = 'https://github.com/PSApplicationInsights/PSApplicationInsights/blob/master/CHANGELOG.md'
 
     } # End of PSData hashtable
 

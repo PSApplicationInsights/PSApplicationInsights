@@ -15,21 +15,25 @@
  #  v0.4 Add logic to deal with Scripts and Modules
 #>
 
-Task default -Depends TestInstall
+Task default -Depends TestInstall, Dependencies
 
 Properties {
     # The name of your module should match the basename of the PSD1 file.
     if ($PSScriptRoot ) { 
-        $BasePath = $PSScriptRoot 
+        $BasePath = split-path -parent $PSScriptRoot
     } else {
         #Handle run in ISE with open file
-        $BasePath = split-path -parent $psISE.CurrentFile.Fullpath
+        $BasePath = split-path -parent (split-path -parent $psISE.CurrentFile.Fullpath)
     }
+
+    $TestPath = "$($BasePath)\tests\"
+    $BasePath = "$($BasePath)\PSApplicationInsights\"
+    
     if ([string]::IsNullOrEmpty($BasePath)) {
         Write-Verbose "Using the Working Directory as Base" -Verbose
         $BasePath =$pwd
     }
-    $Modules = @(Get-Item $BasePath\*.psd1 | Foreach-Object {$null = Test-ModuleManifest -Path $_ -ErrorAction SilentlyContinue; if ($?) {
+    $Modules = @(Get-Item $BasePath*.psd1 | Foreach-Object {$null = Test-ModuleManifest -Path $_ -ErrorAction SilentlyContinue; if ($?) {
                 $_
             }})
 
@@ -43,7 +47,7 @@ Properties {
         Write-verbose "No modules found, looking for a script"
         #work around strange behaviour test-scriptFileInfo
 
-        $scripts = @(Get-Item $BasePath\tests\*.ps1|ForEach-Object {
+        $scripts = @(Get-Item $TestPath*.ps1|ForEach-Object {
                 Try { 
                     $null =Test-ScriptFileInfo -Path $_ -ErrorAction SilentlyContinue; 
                 } catch {
@@ -96,7 +100,11 @@ Properties {
 
 FormatTaskName "|>-------- {0} --------<|"
 
-Task Test  {
+Task Dependencies {
+    .\install-NugetPackages.ps1
+}
+
+Task Test -Depends Dependencies  {
  
     $Results = Invoke-Pester -PassThru
     if  ($Results.FailedCount -gt 0) {
@@ -195,7 +203,6 @@ Task TestPublish -Depends Sign `
 
     $publishParams = @{} 
     $publishParams['Repository'] = $TestRepository
-    
 
     if ($target.Type -ieq "Module" ){
         
@@ -211,7 +218,7 @@ Task TestPublish -Depends Sign `
         $publishParams['Path']= $ReleaseDir
         "Calling Publish-Module..."
         Publish-Module @publishParams 
-    } else{
+    } else {
         #remove the same version form the test repo, if it already exists
         $MFT = Test-ScriptFileInfo -Path (Join-Path $ReleaseDir -ChildPath $target.Name ) 
         $filter = "{0}.{1}.nupkg" -f $target.BaseName , $MFT.Version.ToString()
@@ -223,7 +230,6 @@ Task TestPublish -Depends Sign `
         Publish-Script @publishParams    
 
     }
-
 }
 
 
@@ -277,7 +283,7 @@ Task Publish -Depends TestInstall {
         $tag = "{0}_{1}" -f $target.BaseName,$MFT.Version.ToString()
         Write-Verbose "Git Tag $tag" -Verbose
         Git tag $tag
-    } else{
+    } else {
         #remove the same version form the test repo, if it already exists
         $MFT = Test-ScriptFileInfo -Path (Join-Path $ReleaseDir -ChildPath $target.Name ) 
         $filter = "{0}.{1}.nupkg" -f $target.BaseName , $MFT.Version.ToString()
