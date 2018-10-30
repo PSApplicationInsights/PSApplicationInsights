@@ -84,8 +84,8 @@ function Send-AIException
 
         #Send the PowerShell StackTrace and additional info in an AI Trace
         $MSG = "PSSCallStack for Error: {0}" -f $ErrorInfo.ToString()
-        $ErrProperties = ( $ErrorInfo | Select -ExcludeProperty InvocationInfo | ConvertTo-Hashtable ) `
-                       + ( $ErrorInfo.InvocationInfo | Select -ExcludeProperty Line,PositionMessage |  ConvertTo-Hashtable )
+        $ErrProperties = ( $ErrorInfo | Select-Object -ExcludeProperty InvocationInfo | ConvertTo-Hashtable ) `
+                       + ( $ErrorInfo.InvocationInfo | Select-Object -ExcludeProperty Line,PositionMessage |  ConvertTo-Hashtable )
         Send-AITrace -Message $MSG -NoStack:$NoStack -Properties $ErrProperties -Client:$Client -StackWalk:($StackWalk+1) -FullStack -SeverityLevel 'Error'
 
     }

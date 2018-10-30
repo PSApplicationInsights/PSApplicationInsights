@@ -168,7 +168,7 @@ Task Sign   -Depends Copy `
             -RequiredVariables ReleaseDir, Target {
   
     #Just get the first codesigning cert 
-    $CodeSigningCerts = @(gci cert:\currentuser\my -codesigning)
+    $CodeSigningCerts = @(Get-ChildItem cert:\currentuser\my -codesigning)
 
      
     if ($CodeSigningCerts.Count -ge 1)  {
@@ -246,7 +246,7 @@ Task TestInstall -Depends TestPublish{
 
         find-script -Name $mft.Name -RequiredVersion $mft.version -Repository $TestRepository
         install-script -Name $mft.Name -RequiredVersion $mft.version -Repository $TestRepository -Force -Scope CurrentUser
-        Get-InstalledScript -Name $mft.Name -RequiredVersion $mft.version | FT Name, Version, Repo*, InstalledLocation
+        Get-InstalledScript -Name $mft.Name -RequiredVersion $mft.version | Format-Table Name, Version, Repo*, InstalledLocation
 
         uninstall-script -Name $mft.Name -RequiredVersion $mft.version -Force 
     }
@@ -309,6 +309,6 @@ Task Install  {
 
         find-script -Name $mft.Name -RequiredVersion $mft.version -Repository $PublishRepository
         install-script -Name $mft.Name -RequiredVersion $mft.version -Repository $PublishRepository -Force -Scope CurrentUser
-        Get-InstalledScript -Name $mft.Name -RequiredVersion $mft.version | FT Name, Version, Repo*, InstalledLocation
+        Get-InstalledScript -Name $mft.Name -RequiredVersion $mft.version | Format-Table Name, Version, Repo*, InstalledLocation
     }
 }

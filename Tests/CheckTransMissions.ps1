@@ -76,7 +76,7 @@ $capturedtext | %{
 
         }        
         
-} | FL
+} | Format-List
 
 #Now split on the seperator string 
 #Fail

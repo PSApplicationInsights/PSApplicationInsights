@@ -171,7 +171,7 @@ Param (
         return $null
     }
     $Capture = Get-Content $fileName |Convertfrom-json 
-    #$Capture.log.entries= $Capture.log.entries | Where { ($_.request.url -like 'https://*.services.visualstudio.com/*') }      
+    #$Capture.log.entries= $Capture.log.entries | Where-Object { ($_.request.url -like 'https://*.services.visualstudio.com/*') }      
     if ( $Capture -eq $null -or  $Capture -isnot 'System.Management.Automation.PSCustomObject' ) {
         Write-Verbose 'Read-Fiddler : Empty file' -Verbose
         return $null
@@ -179,12 +179,12 @@ Param (
     if ($QuickPulse) {
         #Filter for Only QuickPulse 
         #Make sure to get an array 
-        $Capture.log.entries = @($Capture.log.entries| Where { ($_.request.url -like 'https://rt.services.visualstudio.com/QuickPulseService.svc/*') })
+        $Capture.log.entries = @($Capture.log.entries| Where-Object { ($_.request.url -like 'https://rt.services.visualstudio.com/QuickPulseService.svc/*') })
         return $Capture
     } else {
         #Filter for only AI traffic
     
-        $Capture.log.entries = @( $Capture.log.entries | Where { ($_.request.url -like 'https://dc.services.visualstudio.com/v2/track') })
+        $Capture.log.entries = @( $Capture.log.entries | Where-Object { ($_.request.url -like 'https://dc.services.visualstudio.com/v2/track') })
         #Expand the Telemetry data from the post and the response body
 
         for ($n = 0; $n -lt $Capture.log.Entries.Count; $n++) {
@@ -201,14 +201,14 @@ Param (
             $Capture.log.Entries[$n] | Add-Member -Name 'AIResponse' -MemberType NoteProperty -Value $AIResponse -Force
         }
 
-        $AllTelemetry= @( $Capture.log.Entries| foreach { Write-Output $_.AITelemetry } )
-        $AllResponses= @( $Capture.log.Entries| foreach { Write-Output $_.AIResponse } )
+        $AllTelemetry= @( $Capture.log.Entries| ForEach-Object { Write-Output $_.AITelemetry } )
+        $AllResponses= @( $Capture.log.Entries| ForEach-Object { Write-Output $_.AIResponse } )
 
         $Capture | Add-Member -Name 'AllTelemetry' -MemberType NoteProperty -Value $AllTelemetry
         $Capture | Add-Member -Name 'AllResponses' -MemberType NoteProperty -Value $AllResponses
 
         #Count the errors $counts = $Capture.AllResponses | %{ $_.errors.Count}
-        $ErrCount = Measure-Object -Sum -InputObject ($Capture.AllResponses | %{ if ($_.errors -and $_.errors.Count ){ $_.errors.Count} } )          
+        $ErrCount = Measure-Object -Sum -InputObject ($Capture.AllResponses | ForEach-Object { if ($_.errors -and $_.errors.Count ){ $_.errors.Count} } )          
         $Capture | Add-Member -Name 'ErrorCount' -MemberType NoteProperty -Value $ErrCount.Sum
 
         #Dynamic don't work so well 
