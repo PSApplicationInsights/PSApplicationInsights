@@ -314,8 +314,13 @@ function Install-FiddlerScript {
     }
 
     Write-Verbose "FiddlerScript not installed. Installing."
+    
     # Create backup
-    Copy-Item $fiddlerScriptFile "$($fiddlerScriptFile)-$(Get-Date -Format 'yyyyMMddhhmmss')"
+    if (Test-Path $fiddlerScriptFile)
+    {
+        Copy-Item $fiddlerScriptFile "$($fiddlerScriptFile)-$(Get-Date -Format 'yyyyMMddhhmmss')"
+    }
+
     Copy-Item "$($PSScriptRoot)\Fiddler-CustomRules.js" $fiddlerScriptFile -Force -Confirm:$False
 }
 
