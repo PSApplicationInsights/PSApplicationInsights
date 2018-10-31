@@ -22,4 +22,8 @@ test_script:
   - ps: . .\tests\appveyor.pester.ps1 -Finalize
 
 after_test:
+  - ps: Write-Output "Starting After-Test"
+  - ps: Write-Output $ENV:TEMP
+  - ps: Write-Output Get-ChildItem $ENV:TEMP\tmp*.tmp
+  - ps: Write-Output Get-ChildItem $ENV:TEMP
   - ps: Get-ChildItem $ENV:TEMP\tmp*.tmp | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
