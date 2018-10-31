@@ -15,6 +15,7 @@ init:
 
 install:
   - cinst fiddler -y
+  - cmd: call .\tests\ConfigureFiddler.bat
 
 build_script:
   - ps: .\build\build.ps1

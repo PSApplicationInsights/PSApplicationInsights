@@ -217,6 +217,12 @@ class Handlers
             oSession.responseCode = 304;
             oSession["ui-backcolor"] = "Lavender";
         }
+
+        if (oSession.HTTPMethodIs("CONNECT") && 
+        !oSession.HostnameIs("dc.services.visualstudio.com"))
+        { 
+            oSession["x-no-decrypt"] = "do not care."; 
+        }
     }
 
     // This function is called immediately after a set of request headers has
