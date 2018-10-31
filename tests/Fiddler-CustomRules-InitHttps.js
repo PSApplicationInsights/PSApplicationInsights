@@ -14,4 +14,18 @@ class Handlers
         CertMaker.createRootCert();
         //CertMaker.GetRootCertificate().GetPublicKeyString()
     }
+
+     // The OnExecAction function is called by either the QuickExec box in the Fiddler window,
+    // or by the ExecAction.exe command line utility.
+    static function OnExecAction(sParams: String[]): Boolean {
+
+        FiddlerObject.StatusText = "ExecAction: " + sParams[0];
+
+        var sAction = sParams[0].toLowerCase();
+        switch (sAction) {
+        case "quit":
+            UI.actExit();
+            return true;
+        }
+    }
 }
