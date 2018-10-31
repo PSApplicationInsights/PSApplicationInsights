@@ -26,7 +26,7 @@ echo "Create folder for the custom fiddler's script: %fiddler_custom_script_dir%
 mkdir "%fiddler_custom_script_dir%" >> "%log%"
 
 echo "Copy fiddler script to  %fiddler_custom_script_dir%" >> "%log%"
-copy /Y /V "%currentDir%\CustomRules.js" "%fiddler_custom_script_dir%\CustomRules.js" >> "%log%"
+copy /Y /V "%currentDir%\Fiddler-CustomRules-InitHttps.js" "%fiddler_custom_script_dir%\CustomRules.js" >> "%log%"
 
 echo "Start fiddler" >> "%log%"
 start "" "%fiddler_binary_dir%\fiddler.exe" -quiet
