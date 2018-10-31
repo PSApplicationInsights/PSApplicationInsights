@@ -330,6 +330,8 @@ function New-AIClient
                         $client.Context.Device.OperatingSystem = $OS.version
                     }
                 }
+
+                
                 $client.Context.User.UserAgent = $Host.Name
 
                 if ($AllowPII) {

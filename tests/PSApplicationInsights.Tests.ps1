@@ -194,7 +194,7 @@ Describe "PSApplicationInsights Module" {
                 $MyTelemetry[0].tags.'ai.user.id' | Should be $env:USERNAME
                 $MyTelemetry[0].tags.'ai.device.id' | Should -BeIn ($env:COMPUTERNAME, $env:COMPUTERNAME.$env:USERDNSDOMAIN)
 
-                $MyTelemetry[0].tags.'ai.user.userAgent' | Should be  $Host.Name
+                #$MyTelemetry[0].tags.'ai.user.userAgent' | Should be $Host.Name    # Newer SDK versions don't send this anymore by default.
 
                 $MyTelemetry[0].tags.'ai.operation.id' -in '<No file>','PSApplicationInsights.Tests.ps1','Pester.psm1'  | Should be $true
             }
