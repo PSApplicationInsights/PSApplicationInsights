@@ -241,7 +241,12 @@ Param (
             $Result =  ConvertFrom-Json  -InputObject  '{"log":{"pages":  [],"comment":  "","entries":  [],"creator":  {},"version":  "1.2"},"AllTelemetry":  [],"AllResponses":  []}'
         }
     }
-    Remove-Item $fileName -ErrorAction SilentlyContinue 
+
+    if (($ENV:PRESERVE_FIDDLER_TRACE) -and (-not ($ENV:PRESERVE_FIDDLER_TRACE).ToLowerInvariant -eq 'true'))
+    {
+        Remove-Item $fileName -ErrorAction SilentlyContinue 
+    }
+
     Return $Result
 }
 

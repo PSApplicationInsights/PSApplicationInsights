@@ -5,6 +5,9 @@
 skip_commits:
   message: /updated readme.*/
 
+environment:
+  PRESERVE_FIDDLER_TRACE: true
+
 install:
   - cinst fiddler -y
 
