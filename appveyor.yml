@@ -10,6 +10,9 @@ environment:
 
 image: Visual Studio 2017
 
+init:
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
 install:
   - cinst fiddler -y
 
@@ -25,10 +28,5 @@ test_script:
   - ps: . .\tests\appveyor.pester.ps1 -Finalize
 
 on_finish:
-  - ps: Write-Host "Starting After-Test"
-  - ps: Write-Output "Starting After-Test"
-  - ps: Write-Output $ENV:TEMP
-  - ps: Write-Output Get-ChildItem $ENV:TEMP\tmp*.tmp
-  - ps: Write-Output Get-ChildItem $ENV:TEMP
   - ps: Get-ChildItem $ENV:TEMP\tmp*.tmp | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
