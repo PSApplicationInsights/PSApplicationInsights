@@ -19,7 +19,7 @@ test_script:
 # Finalize pass - collect and upload results
   - ps: . .\tests\appveyor.pester.ps1 -Finalize
 
-after_test:
+on_finish:
   - ps: Write-Host "Starting After-Test"
   - ps: Write-Output "Starting After-Test"
   - ps: Write-Output $ENV:TEMP
