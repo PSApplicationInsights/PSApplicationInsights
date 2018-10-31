@@ -8,6 +8,8 @@ skip_commits:
 environment:
   PRESERVE_FIDDLER_TRACE: true
 
+image: Visual Studio 2017
+
 install:
   - cinst fiddler -y
 
@@ -29,3 +31,4 @@ on_finish:
   - ps: Write-Output Get-ChildItem $ENV:TEMP\tmp*.tmp
   - ps: Write-Output Get-ChildItem $ENV:TEMP
   - ps: Get-ChildItem $ENV:TEMP\tmp*.tmp | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))

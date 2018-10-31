@@ -41,3 +41,11 @@ Sample of helper functions and extended tracing
 - install [CredentialManager](https://github.com/davotronic5000/PowerShell_Credential_Manager)
 
 `Install-Module -Name CredentialManager`
+
+# Unit Testing
+As seen above, Unit Tests are executed using Pester.
+You also need [Fiddler](https://www.telerik.com/fiddler) installed on your system, this can be done using [chocolatey](https://chocolatey.org/):
+`choco install fiddler`
+
+A fiddler script is added automatically. A backup of your current script is created, as it gets overwritten from <MYDOCUMENTS>\Fiddler2\Scripts
+The script adds a new Fiddler QuickExec command "dumpjson" to be able to retrieve the captured data in JSON format for PowerShell consumption.
