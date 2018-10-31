@@ -58,4 +58,3 @@ echo certutil -addstore -f "Root" %cert_path%
 if "%errorlevel%" LSS 0 if %attempt% LSS 3 goto import_cert
 
 echo "End..."
-exit /b 0
