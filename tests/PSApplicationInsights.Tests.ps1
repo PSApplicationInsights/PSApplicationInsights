@@ -220,7 +220,7 @@ Describe "PSApplicationInsights Module" {
                 $MyTelemetry[0].tags.'ai.device.type'          | Should not be "" #  PC
             }            
         }
-        it 'can Init  Domain properties' {    
+        it 'can Init Domain properties' {    
 
             { $TmtClient = New-AIClient -Key $key -Init Domain } | Should not Throw 
 
@@ -336,7 +336,7 @@ Describe "PSApplicationInsights Module" {
             $client = New-AIClient -Key $key -Synthetic $SynthMarker
         }
 
-        #TestHack to avoid loosing the vlau of client due to scope 
+        #TestHack to avoid loosing the value of client due to scope 
         #Todo: improve logic
         $SynthMarker= "Pester run $((get-date).ToString('g'))"
         $client = New-AIClient -Key $key -Synthetic $SynthMarker
