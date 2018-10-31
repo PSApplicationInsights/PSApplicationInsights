@@ -1,5 +1,6 @@
 @ECHO OFF
 
+set originalDir=%cd%
 set currentDir=%~dp0
 cd "%currentDir%"
 
@@ -45,6 +46,7 @@ if not exist "%cert_path%" if %attempt% LSS 300 goto get_cert
 if not exist "%cert_path%" (
     echo "FAIL. Certificate "%cert_path%" doesn't exist. Cannot set trusted certificate"
     start "" "%fiddler_binary_dir%\execaction.exe" quit
+    cd "%originalDir%"
     exit /b -100
 )
 
@@ -60,6 +62,7 @@ if "%errorlevel%" LSS 0 if %attempt% LSS 3 goto import_cert
 
 
 start "" "%fiddler_binary_dir%\execaction.exe" quit
+cd "%originalDir%"
 
 echo "End..."
 exit /b 0
